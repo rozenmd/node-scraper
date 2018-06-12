@@ -1,8 +1,23 @@
 import csv from 'csvtojson'
 import path from 'path'
+import puppeteer from 'puppeteer'
 
-export const exchangeMapping = { ASX: 'XASX', LSE: 'XLSE', ARCA: 'ARCX' }
-export const regionMapping = { ASX: 'XASX', LSE: 'gbr', ARCA: 'ARCX' }
+const exchangeMapping = { ASX: 'XASX', LSE: 'XLSE', ARCA: 'ARCX' }
+const regionMapping = { ASX: 'XASX', LSE: 'gbr', ARCA: 'ARCX' }
+
+export async function getHTMLFromURL(url) {
+  const browser = await puppeteer.launch({
+    headless: false
+  })
+  const page = await browser.newPage()
+  await page.goto(url)
+  const data = await page.evaluate(() => {
+    const TABLE_SELECTOR = '#holding_epage0 tr td'
+    const tds = Array.from(document.querySelectorAll(TABLE_SELECTOR))
+    return tds.map(td => td.innerHTML)
+  })
+  return data
+}
 
 export function getJsonTickerList() {
   const CSV_FILEPATH = path.join(__dirname, '..', 'data', 'etf_list.csv')
