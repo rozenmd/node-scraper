@@ -3,6 +3,7 @@ import path from 'path'
 import puppeteer from 'puppeteer'
 
 const exchangeMapping = { ASX: 'XASX', LSE: 'XLSE', ARCA: 'ARCX' }
+const CSV_FILEPATH = path.join(__dirname, '..', 'data', 'etf_list.csv')
 
 export async function getTableFromURL(url) {
   const browser = await puppeteer.launch({
@@ -10,10 +11,16 @@ export async function getTableFromURL(url) {
   })
   const page = await browser.newPage()
   await page.goto(url)
-  console.log(url)
 
+  //sort of an annoyingly untestable function to get a URL, parse its html and return data
   const data = await page.evaluate(() => {
-    //list of table rows
+    //helper function to avoid having to re-traverse the output
+    function cleanUpText(string) {
+      //this dash here👇 is actually not the standard dash
+      if (string === '—') return null
+      return string
+    }
+    //get the list of table rows
     const trs = Array.from(
       document.querySelectorAll('#holding_epage0 tr:not(.hr)')
     )
@@ -22,21 +29,21 @@ export async function getTableFromURL(url) {
       //get all tds and ths of this row
       let temp = {}
       let row = tr.querySelectorAll('td,th')
-      temp.companyName = row[1].innerText
-      temp.percentPortfolioWeight = row[4].innerText
-      temp.sharesOwned = row[5].innerText
+      temp.companyName = cleanUpText(row[1].innerText)
+      temp.percentPortfolioWeight = cleanUpText(row[4].innerText)
+      temp.sharesOwned = cleanUpText(row[5].innerText)
       temp.sector = row[7].querySelector('span')
-        ? row[7].querySelector('span').title
+        ? cleanUpText(row[7].querySelector('span').title)
         : null
       temp.style = row[8].querySelector('span')
-        ? row[8].querySelector('span').className
+        ? cleanUpText(row[8].querySelector('span').className)
         : null
-      temp.firstBought = row[10].innerText
+      temp.firstBought = cleanUpText(row[10].innerText)
       temp.companyTicker = row[11].querySelector('a')
-        ? row[11].querySelector('a').href.split('t=')[1]
+        ? cleanUpText(row[11].querySelector('a').href.split('t=')[1])
         : null
-      temp.country = row[12].innerText
-      temp.ytdReturn = row[13].innerText
+      temp.country = cleanUpText(row[12].innerText)
+      temp.ytdReturn = cleanUpText(row[13].innerText)
       output.push(temp)
     })
     return output
@@ -45,7 +52,6 @@ export async function getTableFromURL(url) {
 }
 
 export function getJsonTickerList() {
-  const CSV_FILEPATH = path.join(__dirname, '..', 'data', 'etf_list.csv')
   return csv()
     .fromFile(CSV_FILEPATH)
     .then(tickerList => {
@@ -54,7 +60,6 @@ export function getJsonTickerList() {
 }
 
 export function generateURL(ticker, exchange) {
-  //workaround for LSE-stocks, site appears to be 302ing
   if (exchange === 'ASX') {
     return `https://portfolios.morningstar.com/fund/holdings?t=${
       exchangeMapping[exchange]
