@@ -12,45 +12,37 @@ export async function getTableFromURL(url) {
   const page = await browser.newPage()
   await page.goto(url)
   console.log(url)
+
   const data = await page.evaluate(() => {
     //list of table rows
     const trs = Array.from(
       document.querySelectorAll('#holding_epage0 tr:not(.hr)')
     )
-    // return document.querySelectorAll('tbody#holding_epage0').innerHTML
-    return trs.map(tr => tr.innerHTML)
+    const output = []
+    trs.forEach(tr => {
+      //get all tds and ths of this row
+      let temp = {}
+      let row = tr.querySelectorAll('td,th')
+      temp.companyName = row[1].innerText
+      temp.percentPortfolioWeight = row[4].innerText
+      temp.sharesOwned = row[5].innerText
+      temp.sector = row[7].querySelector('span')
+        ? row[7].querySelector('span').title
+        : null
+      temp.style = row[8].querySelector('span')
+        ? row[8].querySelector('span').className
+        : null
+      temp.firstBought = row[10].innerText
+      temp.companyTicker = row[11].querySelector('a')
+        ? row[11].querySelector('a').href.split('t=')[1]
+        : null
+      temp.country = row[12].innerText
+      temp.ytdReturn = row[13].innerText
+      output.push(temp)
+    })
+    return output
   })
   return data
-}
-
-export function reformatData(data) {
-  return data
-  // console.log('data: ', data)
-  // const finalData = []
-  // data.forEach(row => {
-  //   const [
-  //     nullVar,
-  //     companyName,
-  //     percentPortfolioWeight,
-  //     sharesOwned,
-  //     sector,
-  //     style,
-  //     firstBought,
-  //     country,
-  //     ytdReturn
-  //   ] = row
-  //   finalData.push({
-  //     ticker: '',
-  //     companyName: companyName,
-  //     percentPortfolioWeight: percentPortfolioWeight,
-  //     sharesOwned: sharesOwned,
-  //     sector: sector,
-  //     style: style,
-  //     firstBought: firstBought,
-  //     country: country,
-  //     ytdReturn: ytdReturn
-  //   })
-  // })
 }
 
 export function getJsonTickerList() {

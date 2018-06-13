@@ -1,9 +1,4 @@
-import {
-  getJsonTickerList,
-  generateURL,
-  getTableFromURL,
-  reformatData
-} from './utils'
+import { getJsonTickerList, generateURL, getTableFromURL } from './utils'
 
 function main() {
   // getJsonTickerList().then(tickerData => {
@@ -17,9 +12,8 @@ function main() {
     'http://portfolios.morningstar.com/fund/holdings?t=XASX:STW'
   )
     .then(data => {
-      console.log('pre-format length: ', data.length)
-      let temp = reformatData(data)
-      console.log('post-format length: ', temp.length)
+      console.log('ready to go data: ', data)
+      console.log('length: ', data.length)
     })
     .catch(err => {
       console.log(err)
