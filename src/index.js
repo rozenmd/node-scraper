@@ -1,4 +1,9 @@
-import { getJsonTickerList, generateURL, getHTMLFromURL } from './utils'
+import {
+  getJsonTickerList,
+  generateURL,
+  getTableFromURL,
+  reformatData
+} from './utils'
 
 function main() {
   // getJsonTickerList().then(tickerData => {
@@ -7,11 +12,14 @@ function main() {
   //     console.log(scrapeURL)
   //   })
   // })
-  getHTMLFromURL(
-    'http://portfolios.morningstar.com/fund/holdings?t=LTMU&region=gbr&culture=en-US'
+  getTableFromURL(
+    // 'http://portfolios.morningstar.com/fund/holdings?t=LTMU&region=gbr&culture=en-US'
+    'http://portfolios.morningstar.com/fund/holdings?t=XASX:STW'
   )
     .then(data => {
-      console.log(data)
+      console.log('pre-format length: ', data.length)
+      let temp = reformatData(data)
+      console.log('post-format length: ', temp.length)
     })
     .catch(err => {
       console.log(err)
