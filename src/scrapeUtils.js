@@ -5,7 +5,7 @@ import puppeteer from 'puppeteer'
 const exchangeMapping = { ASX: 'XASX', LSE: 'XLSE', ARCA: 'ARCX' }
 const CSV_FILEPATH = path.join(__dirname, '..', 'data', 'etf_list.csv')
 
-export async function getTableFromURL(url) {
+export async function getTableFromURL(url, etfTicker) {
   const browser = await puppeteer.launch({
     headless: false
   })
@@ -13,7 +13,7 @@ export async function getTableFromURL(url) {
   await page.goto(url)
 
   //sort of an annoyingly untestable function to get a URL, parse its html and return data
-  const data = await page.evaluate(() => {
+  const data = await page.evaluate(etfTicker => {
     //helper function to avoid having to re-traverse the output
     function cleanUpText(string) {
       //this dash here👇 is actually not the standard dash
@@ -44,10 +44,11 @@ export async function getTableFromURL(url) {
         : null
       temp.country = cleanUpText(row[12].innerText)
       temp.ytdReturn = cleanUpText(row[13].innerText)
+      temp.etfTicker = etfTicker
       output.push(temp)
     })
     return output
-  })
+  }, etfTicker)
   return data
 }
 
