@@ -3,7 +3,6 @@ import path from 'path'
 import puppeteer from 'puppeteer'
 
 const exchangeMapping = { ASX: 'XASX', LSE: 'XLSE', ARCA: 'ARCX' }
-const regionMapping = { ASX: 'XASX', LSE: 'gbr', ARCA: 'ARCX' }
 
 export async function getTableFromURL(url) {
   const browser = await puppeteer.launch({
@@ -56,11 +55,11 @@ export function getJsonTickerList() {
 
 export function generateURL(ticker, exchange) {
   //workaround for LSE-stocks, site appears to be 302ing
-  if (exchange === 'LSE') {
-    return `http://portfolios.morningstar.com/fund/holdings?t=${ticker}&region=gbr&culture=en-US`
-  } else {
+  if (exchange === 'ASX') {
     return `https://portfolios.morningstar.com/fund/holdings?t=${
       exchangeMapping[exchange]
     }:${ticker}`
+  } else {
+    return `http://portfolios.morningstar.com/fund/holdings?t=${ticker}`
   }
 }
