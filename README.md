@@ -1,8 +1,9 @@
 # Node-based Web Scraper
 
-### Usage
+## Setup & Usage
 
-TODO: Write this section!
+1.  Run `npm install` or `yarn`
+2.  Run `npm run dev` or `yarn run dev`
 
 ### Design considerations
 
