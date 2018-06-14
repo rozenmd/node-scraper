@@ -8,7 +8,7 @@ import {
 } from './scrapeUtils'
 import { prepareDB, insertRecordIntoDB } from './dbUtils'
 
-const ASYNC_LIMIT = 7
+const ASYNC_LIMIT = 20
 const promises = []
 
 //Promise queue based on solution here: https://stackoverflow.com/questions/40375551/promise-all-with-limit

@@ -16,6 +16,7 @@ export async function getTableFromURL(browser, url, etfTicker) {
         function cleanUpText(string) {
           //this dash here👇 is actually not the standard dash
           if (string === '—') return null
+          string = string.replace(',', '') //basically praying at this point that no field in the dataset other than sharesOwned uses commas
           return string
         }
         //get the list of table rows
