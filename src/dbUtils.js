@@ -1,3 +1,5 @@
+import Database from 'better-sqlite3'
+
 const CREATE_TABLE_SQL = `CREATE TABLE IF NOT EXISTS results (
 company_name TEXT,
 percent_portfolio_weight TEXT,
@@ -24,12 +26,15 @@ const INSERT_INTO_TABLE_SQL = `INSERT INTO results (
   etf_ticker
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 
-export function prepareDB(db) {
+export function prepareDB() {
+  let db = new Database('scrape-results.db')
   db.prepare(CREATE_TABLE_SQL).run()
-  return db
+  db.close()
 }
 
-export function insertRecordIntoDB(db, record) {
+export function insertRecordIntoDB(record) {
+  let db = new Database('scrape-results.db')
+  console.log('preparing to insert: ', record)
   db.prepare(INSERT_INTO_TABLE_SQL).run(record)
-  return db
+  db.close()
 }

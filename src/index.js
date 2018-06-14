@@ -1,31 +1,41 @@
+import PromisePool from 'es6-promise-pool'
+
 import {
   getJsonTickerList,
   generateURL,
   getTableFromURL,
   cleanUpText
 } from './scrapeUtils'
-import { prepareDB, insertRecordIntoDB } from './dbUtils'
-import Database from 'better-sqlite3'
+import { prepareDB } from './dbUtils'
 
+const ASYNC_LIMIT = 3
+const workToDo = []
+var BreakException = {}
 function main() {
-  const db = new Database('scrape-results.db')
-  //passing around the db to keep it testable - no need to mock a DB in tests
-  prepareDB(db)
-
-  getJsonTickerList().then(tickerData => {
-    tickerData.forEach(row => {
-      const scrapeURL = generateURL(row.tickerSymbol, row.exchangeSymbol)
-      console.log('now scraping: ', scrapeURL)
-      return getTableFromURL(scrapeURL, row.tickerSymbol)
-        .then(data => {
-          insertRecordIntoDB(db, data)
+  prepareDB()
+  getJsonTickerList()
+    .then(tickerData => {
+      tickerData.forEach(row => {
+        const scrapeURL = generateURL(row.tickerSymbol, row.exchangeSymbol)
+        workToDo.push(() => {
+          getTableFromURL(scrapeURL, row.tickerSymbol)
         })
-        .catch(err => {
-          console.log(err)
-        })
+      })
     })
-  })
-  db.close()
+    .then(async () => {
+      var results = []
+
+      var index = 0
+      async function next() {
+        if (index < workToDo.length) {
+          let myProm = workToDo[index]
+          await myProm()
+          index++
+        }
+      }
+      // start first iteration
+      await next()
+    })
 }
 
 main()
