@@ -6,10 +6,35 @@ import {
   getTableFromURL,
   cleanUpText
 } from './scrapeUtils'
-import { prepareDB } from './dbUtils'
+import { prepareDB, insertRecordIntoDB } from './dbUtils'
 
 const ASYNC_LIMIT = 3
-const workToDo = []
+const promises = []
+
+//Promise queue based on solution here: https://stackoverflow.com/questions/40375551/promise-all-with-limit
+function promiseQueue(promiseFactories, limit) {
+  let result = []
+  let count = 0
+
+  function chain(promiseFactories) {
+    if (!promiseFactories.length) return
+    let i = count++ // preserve order in result
+    let task = promiseFactories.shift()
+    return task().then(data => {
+      if (data && data.length > 0) {
+        result[i] = data
+      }
+      return chain(promiseFactories) // append next promise
+    })
+  }
+  let arrChains = []
+  while (limit-- > 0 && promiseFactories.length > 0) {
+    // create `limit` chains which run in parallel
+    arrChains.push(chain(promiseFactories))
+  }
+  // return when all arrChains are finished
+  return Promise.all(arrChains).then(() => result)
+}
 
 function main() {
   prepareDB()
@@ -17,22 +42,19 @@ function main() {
     .then(tickerData => {
       tickerData.forEach(row => {
         const scrapeURL = generateURL(row.tickerSymbol, row.exchangeSymbol)
-        workToDo.push(() => {
-          getTableFromURL(scrapeURL, row.tickerSymbol)
+        promises.push(() => {
+          console.log('Scraping: ', row.tickerSymbol)
+          return getTableFromURL(scrapeURL, row.tickerSymbol)
         })
       })
     })
-    .then(async () => {
-      let index = 0
-      async function next() {
-        if (index < workToDo.length) {
-          let myProm = workToDo[index]
-          await myProm()
-          index++
-        }
-      }
-      // start first iteration
-      await next()
+    .then(() => {
+      promiseQueue(promises, ASYNC_LIMIT).then(result => {
+        // console.log('---FINAL RESULT---', result)
+        result.forEach(ticker => {
+          if (ticker) insertRecordIntoDB(ticker)
+        })
+      })
     })
 }
 

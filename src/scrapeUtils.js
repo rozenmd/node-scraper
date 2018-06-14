@@ -2,7 +2,6 @@ import csv from 'csvtojson'
 import path from 'path'
 import puppeteer from 'puppeteer'
 
-import { insertRecordIntoDB } from './dbUtils'
 const exchangeMapping = { ASX: 'XASX', LSE: 'XLSE', ARCA: 'ARCX' }
 const CSV_FILEPATH = path.join(__dirname, '..', 'data', 'etf_list.csv')
 
@@ -78,8 +77,7 @@ export async function getTableFromURL(url, etfTicker) {
 
         return output
       }, etfTicker)
-
-      insertRecordIntoDB(data) //nice and synchronous
+      browser.close()
 
       return resolve(data)
     } catch (err) {
