@@ -9,7 +9,7 @@ export async function getTableFromURL(url, etfTicker) {
   return new Promise(async (resolve, reject) => {
     try {
       const browser = await puppeteer.launch({
-        headless: false
+        headless: true
       })
       const page = await browser.newPage()
       await page.goto(url)
