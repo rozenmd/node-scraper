@@ -10,7 +10,7 @@ import { prepareDB } from './dbUtils'
 
 const ASYNC_LIMIT = 3
 const workToDo = []
-var BreakException = {}
+
 function main() {
   prepareDB()
   getJsonTickerList()
@@ -23,9 +23,7 @@ function main() {
       })
     })
     .then(async () => {
-      var results = []
-
-      var index = 0
+      let index = 0
       async function next() {
         if (index < workToDo.length) {
           let myProm = workToDo[index]

@@ -24,36 +24,58 @@ export async function getTableFromURL(url, etfTicker) {
           return string
         }
         //get the list of table rows
-        const trs = Array.from(
-          //handle equity ETFs and bond ETFs
-          document.querySelectorAll(
-            'table tbody#holding_bpage0 tr:not(.hr),table tbody#holding_epage0 tr:not(.hr)'
-          )
-        )
+        let trs
         const output = []
-        trs.forEach(tr => {
-          console.log('our trs: ', tr)
-          //get all tds and ths of this row
-          let temp = {}
-          let row = tr.querySelectorAll('td,th')
-          temp.companyName = cleanUpText(row[1].innerText)
-          temp.percentPortfolioWeight = cleanUpText(row[4].innerText)
-          temp.sharesOwned = cleanUpText(row[5].innerText)
-          temp.sector = row[7].querySelector('span')
-            ? cleanUpText(row[7].querySelector('span').title)
-            : null
-          temp.style = row[8].querySelector('span')
-            ? cleanUpText(row[8].querySelector('span').className)
-            : null
-          temp.firstBought = cleanUpText(row[10].innerText)
-          temp.companyTicker = row[11].querySelector('a')
-            ? cleanUpText(row[11].querySelector('a').href.split('t=')[1])
-            : null
-          temp.country = cleanUpText(row[12].innerText)
-          temp.ytdReturn = cleanUpText(row[13].innerText)
-          temp.etfTicker = etfTicker
-          output.push(temp)
-        })
+        //trying to find bond table rows
+        trs = Array.from(
+          document.querySelectorAll('table tbody#holding_bpage0 tr:not(.hr)')
+        )
+        if (trs) {
+          trs.forEach(tr => {
+            //get all tds and ths of this row
+            let temp = {}
+            let row = tr.querySelectorAll('td,th')
+            temp.companyName = cleanUpText(row[1].innerText)
+            temp.percentPortfolioWeight = cleanUpText(row[4].innerText)
+            temp.sharesOwned = cleanUpText(row[5].innerText)
+            temp.sector = null
+            temp.style = null
+            temp.firstBought = null
+            temp.companyTicker = null
+            temp.country = null
+            temp.ytdReturn = null
+            temp.etfTicker = etfTicker
+            output.push(temp)
+          })
+        } //couldnt find the bond table rows - trying equities
+        else {
+          trs = Array.from(
+            document.querySelectorAll('table tbody#holding_epage0 tr:not(.hr)')
+          )
+          trs.forEach(tr => {
+            //get all tds and ths of this row
+            let temp = {}
+            let row = tr.querySelectorAll('td,th')
+            temp.companyName = cleanUpText(row[1].innerText)
+            temp.percentPortfolioWeight = cleanUpText(row[4].innerText)
+            temp.sharesOwned = cleanUpText(row[5].innerText)
+            temp.sector = row[7].querySelector('span')
+              ? cleanUpText(row[7].querySelector('span').title)
+              : null
+            temp.style = row[8].querySelector('span')
+              ? cleanUpText(row[8].querySelector('span').className)
+              : null
+            temp.firstBought = cleanUpText(row[10].innerText)
+            temp.companyTicker = row[11].querySelector('a')
+              ? cleanUpText(row[11].querySelector('a').href.split('t=')[1])
+              : null
+            temp.country = cleanUpText(row[12].innerText)
+            temp.ytdReturn = cleanUpText(row[13].innerText)
+            temp.etfTicker = etfTicker
+            output.push(temp)
+          })
+        }
+
         return output
       }, etfTicker)
 
