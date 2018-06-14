@@ -8,7 +8,7 @@ import {
 } from './scrapeUtils'
 import { prepareDB, insertRecordIntoDB } from './dbUtils'
 
-const ASYNC_LIMIT = 20
+const ASYNC_LIMIT = 25
 const promises = []
 
 //Promise queue based on solution here: https://stackoverflow.com/questions/40375551/promise-all-with-limit
@@ -20,12 +20,17 @@ function promiseQueue(promiseFactories, limit) {
     if (!promiseFactories.length) return
     let i = count++ // preserve order in result
     let task = promiseFactories.shift()
-    return task().then(data => {
-      if (data && data.length > 0) {
-        result[i] = data
-      }
-      return chain(promiseFactories) // append next promise
-    })
+    return task()
+      .then(data => {
+        if (data && data.length > 0) {
+          result[i] = data
+        }
+        return chain(promiseFactories) // append next promise
+      }) //on err we want to go onto the next one - doesn't look like .then() handles it
+      .catch(err => {
+        console.error('Caught error from task: ', err)
+        return chain(promiseFactories)
+      })
   }
   let arrChains = []
   while (limit-- > 0 && promiseFactories.length > 0) {
