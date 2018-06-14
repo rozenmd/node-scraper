@@ -10,7 +10,8 @@ first_bought TEXT,
 company_ticker TEXT,
 country TEXT,
 ytd_return TEXT,
-etf_ticker TEXT
+etf_ticker TEXT,
+etf_type TEXT
 )`
 
 const INSERT_INTO_TABLE_SQL = `INSERT INTO results (
@@ -23,7 +24,8 @@ const INSERT_INTO_TABLE_SQL = `INSERT INTO results (
   company_ticker,
   country,
   ytd_return,
-  etf_ticker
+  etf_ticker,
+  etf_type
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 
 export function prepareDB() {
@@ -46,7 +48,8 @@ export function insertRecordIntoDB(record) {
       row.companyTicker,
       row.country,
       row.ytdReturn,
-      row.etfTicker
+      row.etfTicker,
+      row.etfType
     ]
     db.prepare(INSERT_INTO_TABLE_SQL).run(sqlRow)
   })

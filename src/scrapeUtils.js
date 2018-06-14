@@ -44,6 +44,7 @@ export async function getTableFromURL(url, etfTicker) {
             temp.country = null
             temp.ytdReturn = null
             temp.etfTicker = etfTicker
+            temp.etfType = 'BOND'
             output.push(temp)
           })
         } //couldnt find the bond table rows - trying equities
@@ -71,6 +72,7 @@ export async function getTableFromURL(url, etfTicker) {
             temp.country = cleanUpText(row[12].innerText)
             temp.ytdReturn = cleanUpText(row[13].innerText)
             temp.etfTicker = etfTicker
+            temp.etfType = 'EQUITY'
             output.push(temp)
           })
         }
