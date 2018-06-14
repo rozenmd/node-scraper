@@ -1,4 +1,4 @@
-import PromisePool from 'es6-promise-pool'
+import puppeteer from 'puppeteer'
 
 import {
   getJsonTickerList,
@@ -36,7 +36,10 @@ function promiseQueue(promiseFactories, limit) {
   return Promise.all(arrChains).then(() => result)
 } //END Stackoverflow code
 
-function main() {
+async function main() {
+  const browser = await puppeteer.launch({
+    headless: false
+  })
   prepareDB()
   getJsonTickerList()
     .then(tickerData => {
@@ -47,7 +50,7 @@ function main() {
           console.log(
             `Scraping ${row.tickerSymbol}, ${index + 1}/${tickerCount} scraped`
           )
-          return getTableFromURL(scrapeURL, row.tickerSymbol)
+          return getTableFromURL(browser, scrapeURL, row.tickerSymbol)
         })
       })
     })
@@ -58,6 +61,7 @@ function main() {
           console.log('inserting ticker into db: ', index)
           if (ticker) insertRecordIntoDB(ticker)
         })
+        browser.close()
       })
     })
 }
