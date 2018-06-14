@@ -34,23 +34,25 @@ function promiseQueue(promiseFactories, limit) {
   }
   // return when all arrChains are finished
   return Promise.all(arrChains).then(() => result)
-}
+} //END Stackoverflow code
 
 function main() {
   prepareDB()
   getJsonTickerList()
     .then(tickerData => {
-      tickerData.forEach(row => {
+      const tickerCount = tickerData.length
+      tickerData.forEach((row, index) => {
         const scrapeURL = generateURL(row.tickerSymbol, row.exchangeSymbol)
         promises.push(() => {
-          console.log('Scraping: ', row.tickerSymbol)
+          console.log(
+            `Scraping ${row.tickerSymbol}, ${index}/${tickerCount} scraped`
+          )
           return getTableFromURL(scrapeURL, row.tickerSymbol)
         })
       })
     })
     .then(() => {
       promiseQueue(promises, ASYNC_LIMIT).then(result => {
-        // console.log('---FINAL RESULT---', result)
         result.forEach(ticker => {
           if (ticker) insertRecordIntoDB(ticker)
         })
