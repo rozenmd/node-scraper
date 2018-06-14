@@ -26,7 +26,7 @@ const INSERT_INTO_TABLE_SQL = `INSERT INTO results (
   ytd_return,
   etf_ticker,
   etf_type
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 
 export function prepareDB() {
   let db = new Database('scrape-results.db')
@@ -36,8 +36,9 @@ export function prepareDB() {
 
 export function insertRecordIntoDB(record) {
   let db = new Database('scrape-results.db')
-
-  const finalData = record.map(row => {
+  const recordLength = record.length
+  const finalData = record.map((row, index) => {
+    console.log(`inserting into db: ${index + 1}/${recordLength}`)
     let sqlRow = [
       row.companyName,
       row.percentPortfolioWeight,

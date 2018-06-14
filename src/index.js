@@ -8,7 +8,7 @@ import {
 } from './scrapeUtils'
 import { prepareDB, insertRecordIntoDB } from './dbUtils'
 
-const ASYNC_LIMIT = 3
+const ASYNC_LIMIT = 7
 const promises = []
 
 //Promise queue based on solution here: https://stackoverflow.com/questions/40375551/promise-all-with-limit
@@ -45,7 +45,7 @@ function main() {
         const scrapeURL = generateURL(row.tickerSymbol, row.exchangeSymbol)
         promises.push(() => {
           console.log(
-            `Scraping ${row.tickerSymbol}, ${index}/${tickerCount} scraped`
+            `Scraping ${row.tickerSymbol}, ${index + 1}/${tickerCount} scraped`
           )
           return getTableFromURL(scrapeURL, row.tickerSymbol)
         })
@@ -53,7 +53,9 @@ function main() {
     })
     .then(() => {
       promiseQueue(promises, ASYNC_LIMIT).then(result => {
-        result.forEach(ticker => {
+        console.log('made it to results, result is this long: ', result.length)
+        result.forEach((ticker, index) => {
+          console.log('inserting ticker into db: ', index)
           if (ticker) insertRecordIntoDB(ticker)
         })
       })
