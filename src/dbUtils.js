@@ -34,7 +34,22 @@ export function prepareDB() {
 
 export function insertRecordIntoDB(record) {
   let db = new Database('scrape-results.db')
-  console.log('preparing to insert: ', record)
-  db.prepare(INSERT_INTO_TABLE_SQL).run(record)
+
+  const finalData = record.map(row => {
+    let sqlRow = [
+      row.companyName,
+      row.percentPortfolioWeight,
+      row.sharesOwned,
+      row.sector,
+      row.style,
+      row.firstBought,
+      row.companyTicker,
+      row.country,
+      row.ytdReturn,
+      row.etfTicker
+    ]
+    db.prepare(INSERT_INTO_TABLE_SQL).run(sqlRow)
+  })
+
   db.close()
 }
