@@ -23,7 +23,7 @@ function promiseQueue(promiseFactories, limit) {
     return task()
       .then(data => {
         if (data && data.length > 0) {
-          result[i] = data
+          result.push(data)
         }
         return chain(promiseFactories) // append next promise
       }) //on err we want to go onto the next one - doesn't look like .then() handles it
@@ -43,7 +43,7 @@ function promiseQueue(promiseFactories, limit) {
 
 async function main() {
   const browser = await puppeteer.launch({
-    headless: true
+    headless: false
   })
   prepareDB()
   getJsonTickerList()
