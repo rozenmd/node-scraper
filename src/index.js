@@ -28,7 +28,7 @@ function promiseQueue(promiseFactories, limit) {
         return chain(promiseFactories) // append next promise
       }) //on err we want to go onto the next one - doesn't look like .then() handles it
       .catch(err => {
-        console.error('Caught error from task: ', err)
+        //already logging the error elsewhere
         return chain(promiseFactories)
       })
   }
@@ -43,7 +43,7 @@ function promiseQueue(promiseFactories, limit) {
 
 async function main() {
   const browser = await puppeteer.launch({
-    headless: false
+    headless: true
   })
   prepareDB()
   getJsonTickerList()
