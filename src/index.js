@@ -61,9 +61,7 @@ async function main() {
     })
     .then(() => {
       promiseQueue(promises, ASYNC_LIMIT).then(result => {
-        console.log('made it to results, result is this long: ', result.length)
         result.forEach((ticker, index) => {
-          console.log('inserting ticker into db: ', index)
           if (ticker) insertRecordIntoDB(ticker)
         })
         browser.close()

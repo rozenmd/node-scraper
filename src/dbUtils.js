@@ -38,7 +38,6 @@ export function insertRecordIntoDB(record) {
   let db = new Database('scrape-results.db')
   const recordLength = record.length
   const finalData = record.map((row, index) => {
-    console.log(`inserting into db: ${index + 1}/${recordLength}`)
     let sqlRow = [
       row.companyName,
       row.percentPortfolioWeight,
